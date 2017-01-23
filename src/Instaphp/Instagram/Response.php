@@ -102,8 +102,8 @@ class Response
 		// $this->method = $response->request_method;
 
 		//$this->json = $response->json();
-		
-		$json = json_decode($response->getBody(), TRUE);
+		$this->json = json_decode($response->getBody(), TRUE);
+
 		$this->data = isset($this->json['data']) ? $this->json['data'] : [];
 		$this->meta = isset($this->json['meta']) ? $this->json['meta'] : [];
 		if (isset($this->json['code']) && $this->json['code'] !== 200)
