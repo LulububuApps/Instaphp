@@ -141,7 +141,6 @@ class Instagram
 	protected function get($path, array $params = [], array $headers = [])
 	{
         $query = $this->prepare($params);
-        $response = new Response(500);
         try {
 			$response = $this->http->get($this->buildPath($path), [
 	            'query' => $query,
@@ -168,7 +167,6 @@ class Instagram
 	protected function post($path, array $params = [], array $headers = [])
 	{
         $query = $this->prepare($params,false);
-        $response = new Response(500);
         try {
 			$response = $this->http->post($this->buildPath($path), [
 	            'body' => $query,
@@ -195,7 +193,6 @@ class Instagram
 	protected function delete($path, array $params = [], array $headers = [])
 	{
         $query = $this->prepare($params);
-        $response = new Response(500);
         try {
 			$response = $this->http->delete($this->buildPath($path), [
 	            'query' => $query,
