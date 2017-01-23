@@ -27,7 +27,7 @@
  */
 
 namespace Instaphp\Instagram;
-use GuzzleHttp\Message\Response as GuzzleResponse;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
 /**
  * A generic objec representing a response from the Instagram API
  *
@@ -92,7 +92,7 @@ class Response
         foreach ($headers as $header => $value)
             $this->headers[$header] = implode(',', array_values((array)$value));
 
-		$this->url = $response->getEffectiveUrl();
+		//$this->url = $response->getEffectiveUrl();
 
 		// set the query params in $this->params
 		$query = parse_url($this->url, PHP_URL_QUERY);
@@ -101,8 +101,9 @@ class Response
 		// $this->params = $response->request_parameters;
 		// $this->method = $response->request_method;
 
-		$this->json = $response->json();
-		// $json = json_decode($this->json, TRUE);
+		//$this->json = $response->json();
+		
+		$json = json_decode($this->getBody(), TRUE);
 		$this->data = isset($this->json['data']) ? $this->json['data'] : [];
 		$this->meta = isset($this->json['meta']) ? $this->json['meta'] : [];
 		if (isset($this->json['code']) && $this->json['code'] !== 200)

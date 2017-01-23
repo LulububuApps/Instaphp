@@ -32,14 +32,8 @@ use GuzzleHttp\Exception\ParseException;
 use GuzzleHttp\Exception\RequestException;
 use Instaphp\Exceptions\Exception as InstaphpException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Subscriber\Log\LogSubscriber;
-use GuzzleHttp\Subscriber\Log\Formatter;
+use GuzzleHttp\Psr7\Response;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use GuzzleHttp\Event\BeforeEvent;
-use GuzzleHttp\Event\CompleteEvent;
-use GuzzleHttp\Event\ErrorEvent;
-use GuzzleHttp\Message\Response;
 use Instaphp\Http\Events\InstagramSignedAuthEvent;
 /**
  * The base Instagram API object.
@@ -90,7 +84,7 @@ class Instagram
         $this->access_token = $this->config['access_token'];
         $this->client_ip = $this->config['client_ip'];
         $this->http = new Client([
-            'base_url' => 'https://api.instagram.com',
+            'base_uri' => 'https://api.instagram.com',
             'defaults' => [
                 'timeout' => $this->config['http_timeout'],
                 'connect_timeout' => $this->config['http_connect_timeout'],
@@ -99,48 +93,6 @@ class Instagram
                 'exceptions' => false
             ]
         ]);
-        $emitter = $this->http->getEmitter();
-
-        if (!empty($this->config['event.before']) && is_callable($this->config['event.before'])) {
-        	$emitter->on('before', function(BeforeEvent $e) use($config) {
-        		call_user_func_array($config['event.before'], [$e]);
-        	});
-        } elseif ($this->config['log_enabled']) {
-			$emitter->on('before', function(BeforeEvent $e) use($config) {
-				call_user_func_array([$this, 'onBefore'], [$e]);
-			});
-		}
-
-        if (!empty($this->config['event.after']) && is_callable($this->config['event.after'])) {
-        	$emitter->on('complete', function(CompleteEvent $e) use ($config) {
-        		call_user_func_array($config['event.after'], [$e]);
-        	});
-        } elseif ($this->config['log_enabled']) {
-			$emitter->on('complete', function(CompleteEvent $e) use($config) {
-				call_user_func_array([$this, 'onComplete'], [$e]);
-			});
-		}
-
-        if (!empty($this->config['event.error']) && is_callable($this->config['event.error'])) {
-        	$emitter->on('error', function(ErrorEvent $e) use ($config) {
-        		$e->stopPropagation();
-        		call_user_func_array($config['event.error'], [$e]);
-        	});
-        }
-
-        if ($this->config['log_enabled']) {
-			$this->log = new Logger('instaphp');
-			$this->log->pushHandler(new StreamHandler($this->config['log_path'], $this->config['log_level']));
-	        if ($this->config['debug']) {
-	        	$emitter->attach(new LogSubscriber($this->log, Formatter::DEBUG));
-	        } else {
-	        	$emitter->attach(new LogSubscriber($this->log));
-	        }
-	    }
-	    
-        $emitter->attach(new InstagramSignedAuthEvent($this->client_ip, $this->client_secret));
-
-
 	}
 
 	/**
