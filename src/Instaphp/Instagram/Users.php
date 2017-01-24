@@ -51,7 +51,7 @@ class Users extends Instagram
 	{
         try {
             $response = $this->http->Post($this->buildPath('/oauth/access_token', false), [
-                'body' => [
+                'form_params' => [
                     'client_id' => $this->config['client_id'],
                     'client_secret' => $this->config['client_secret'],
                     'redirect_uri' => $this->config['redirect_uri'],
